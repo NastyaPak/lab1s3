@@ -1,140 +1,159 @@
 #include "header.h"
+#include <iostream>
+#include <fstream>
+using namespace std;
 
+// Структура DLLNode для узла двусвязного списка
 struct DLLNode {
-    std::string data;
-    DLLNode* next;
-    DLLNode* prev;
+    std::string data;  // Данные узла
+    DLLNode* next;     // Указатель на следующий узел
+    DLLNode* prev;     // Указатель на предыдущий узел
 
+    // Конструктор для создания узла
     DLLNode(std::string value) : data(value), next(nullptr), prev(nullptr) {}
 };
 
-struct DoubleLinkedList{ //done
-    std::string* doubleLinkedList; 
-    DLLNode* head;
-    DLLNode* tail;
+// Структура DoubleLinkedList для работы с двусвязным списком
+struct DoubleLinkedList {
+    std::string* doubleLinkedList;  // Указатель на массив (не используется в текущей реализации)
+    DLLNode* head;  // Указатель на начало списка
+    DLLNode* tail;  // Указатель на конец списка
 
+    // Конструктор: инициализация списка и загрузка данных из файла
     DoubleLinkedList() : head(nullptr), tail(nullptr) {
-        loadFromFile("DLList.data"); // загружаем данные из файла при создании объекта
+        loadFromFile("DLList.data");  // Загружаем данные из файла при создании объекта
     }
 
-    void addToTheHead(std::string value); // добавление элемента в голову
-    void addToTheEnd(std::string value); // добавление элемента в хвост
-    void removeFromTheHead(); // удаление элемента с головы
-    void removeFromTheEnd(); // удаление элемента с хвоста
-    void removeByValue(std::string value); // удаление элемента по значению
-    bool searchByValue(std::string value); // поиск элемента по значению
-    void display();
-    void loadFromFile(const std::string& filename);
-    void saveToFile(const std::string& filename);
-    void clear();
+    // Методы для работы со списком
+    void addToTheHead(std::string value);  // Добавление элемента в начало списка
+    void addToTheEnd(std::string value);    // Добавление элемента в конец списка
+    void removeFromTheHead();               // Удаление элемента из начала списка
+    void removeFromTheEnd();                // Удаление элемента из конца списка
+    void removeByValue(std::string value);  // Удаление элемента по значению
+    bool searchByValue(std::string value);  // Поиск элемента по значению
+    void display();                         // Вывод списка на экран
+    void loadFromFile(const std::string& filename);  // Загрузка данных из файла
+    void saveToFile(const std::string& filename);    // Сохранение данных в файл
+    void clear();  // Очистка списка
 };
 
+// Очистка списка
 void DoubleLinkedList::clear() {
     while (head != nullptr) {
-        removeFromTheHead();
+        removeFromTheHead();  // Удаляем элементы с головы, пока список не станет пустым
     }
 }
 
-void DoubleLinkedList::addToTheHead(std::string value){ // добавление в самое начало
-    DLLNode* newNode = new DLLNode(value);
-    if (head == nullptr){
-        head = tail = newNode;
+// Добавление элемента в начало списка
+void DoubleLinkedList::addToTheHead(std::string value) {
+    DLLNode* newNode = new DLLNode(value);  // Создаем новый узел
+    if (head == nullptr) {  // Если список пуст
+        head = tail = newNode;  // Новый узел становится и головой, и хвостом
     } else {
-        newNode->next = head;
-        head->prev = newNode;
-        head = newNode;
+        newNode->next = head;  // Новый узел указывает на текущую голову
+        head->prev = newNode;  // Текущая голова указывает на новый узел
+        head = newNode;        // Новый узел становится новой головой
     }
-    saveToFile("DLList.data"); // сохраняем изменения в файл
+    saveToFile("DLList.data");  // Сохраняем изменения в файл
 }
 
-void DoubleLinkedList::addToTheEnd(std::string value){
-    DLLNode* newNode = new DLLNode(value);
-    if (head == nullptr){
-        head = tail = newNode;
+// Добавление элемента в конец списка
+void DoubleLinkedList::addToTheEnd(std::string value) {
+    DLLNode* newNode = new DLLNode(value);  // Создаем новый узел
+    if (head == nullptr) {  // Если список пуст
+        head = tail = newNode;  // Новый узел становится и головой, и хвостом
     } else {
-        newNode->prev = tail;
-        tail->next = newNode;
-        tail = newNode;
+        newNode->prev = tail;  // Новый узел указывает на текущий хвост
+        tail->next = newNode;  // Текущий хвост указывает на новый узел
+        tail = newNode;        // Новый узел становится новым хвостом
     }
-    saveToFile("DLList.data"); // сохраняем изменения в файл
+    saveToFile("DLList.data");  // Сохраняем изменения в файл
 }
 
-void DoubleLinkedList::removeFromTheHead(){// удаление элемента с головы
-    if (head == nullptr){
+// Удаление элемента из начала списка
+void DoubleLinkedList::removeFromTheHead() {
+    if (head == nullptr) {  // Если список пуст
         cout << "Deletion is not possible: the list is empty" << endl;
         return;
-    } else {
-        DLLNode* temp = head;
-        head->next->prev = nullptr;
-        head = head->next; //удаляем первый элемент
-        delete temp;
-    }
-    saveToFile("DLList.data"); // Сохраняем изменения в файл
-}
-
-void DoubleLinkedList::removeFromTheEnd(){ // удаление элемента с хвоста
-    if (head == nullptr){
-        cout << "Deletion is not possible: the list is empty" << endl;
-        return;
-    }
-    if (head == tail){
+    } else if (head == tail) {  // Если в списке только один элемент
         delete head;
         head = nullptr;
         tail = nullptr;
-        return;
+    } else {
+        DLLNode* temp = head;  // Сохраняем текущую голову
+        head = head->next;  // Перемещаем голову на следующий узел
+        head->prev = nullptr;  // Убираем связь с предыдущим узлом
+        delete temp;  // Удаляем старую голову
     }
-    
-    DLLNode* current = tail;
-    tail->prev->next = nullptr;
-    tail = tail->prev; // удаляем последний элемент
-    delete current;
-    saveToFile("DLList.data"); // сохраняем изменения в файл
+    saveToFile("DLList.data");  // Сохраняем изменения в файл
 }
 
-void DoubleLinkedList::removeByValue(std::string value){ // удаление элемента по значению
-    if (head == nullptr){
+// Удаление элемента из конца списка
+void DoubleLinkedList::removeFromTheEnd() {
+    if (head == nullptr) {  // Если список пуст
+        cout << "Deletion is not possible: the list is empty" << endl;
+        return;
+    } else if (head == tail) {  // Если в списке только один элемент
+        delete head;
+        head = nullptr;
+        tail = nullptr;
+    } else {
+        DLLNode* temp = tail;  // Сохраняем текущий хвост
+        tail = tail->prev;  // Перемещаем хвост на предыдущий узел
+        tail->next = nullptr;  // Убираем связь с последним узлом
+        delete temp;  // Удаляем старый хвост
+    }
+    saveToFile("DLList.data");  // Сохраняем изменения в файл
+}
+// Удаление элемента по значению
+void DoubleLinkedList::removeByValue(std::string value) {
+    if (head == nullptr) {  // Если список пуст
         cout << "Deletion is not possible: the list is empty" << endl;
         return;
     }
-    if (value == head->data){
+
+    // Если значение находится в голове
+    if (head->data == value) {
         removeFromTheHead();
         return;
     }
-    if (value == tail->data){
+
+    // Если значение находится в хвосте
+    if (tail->data == value) {
         removeFromTheEnd();
         return;
     }
-    
+
+    // Ищем узел с нужным значением
     DLLNode* current = head;
-    while (current->next && current->next->data != value){ // пока вообще можем идти по списку
-    // и пока значение не будет равно нужному
+    while (current != nullptr && current->data != value) {
         current = current->next;
     }
-    if (current->next == nullptr){
+
+    // Если значение не найдено
+    if (current == nullptr) {
         cout << "This value is not in the list" << endl;
         return;
     }
 
-    if (current->prev){ // если существует предудущий узел, то мы указываем предыдущему
-        current->prev->next = current->next; // указывать на следующий текущему
-    } else { // если это голова, те предыдущего узла нет, то обновляем, чтобы голова 
-        head = current->next; // указывала на следующий узел
+    // Обновляем связи между узлами
+    if (current->prev) {
+        current->prev->next = current->next;
+    }
+    if (current->next) {
+        current->next->prev = current->prev;
     }
 
-    if (current->next){ // если существует следующий узел, то мы указываем чтобы следующий
-        current->next->prev = current->prev; // указывал на предыдущий текущему
-    } else { // если это хвост, то следующего нет, то обновляем, чтобы он указывал на предыдущий
-        tail = current->prev;
-    }
-    delete current; // и удаляем текущий
-    saveToFile("DLList.data"); // Сохраняем изменения в файл
+    delete current;  // Удаляем текущий узел
+    saveToFile("DLList.data");  // Сохраняем изменения в файл
 }
 
+// Поиск элемента по значению
 bool DoubleLinkedList::searchByValue(std::string value) {
     DLLNode* current = head;
-    while (current) {
-        if (current->data == value) {
-            std::cout << "Value " << current->data << " is in the list" << std::endl;
+    while (current) {  // Проходим по списку
+        if (current->data == value) {  // Если значение найдено
+            std::cout << "Value " << value << " is in the list" << std::endl;
             return true;
         }
         current = current->next;
@@ -143,45 +162,47 @@ bool DoubleLinkedList::searchByValue(std::string value) {
     return false;
 }
 
-void DoubleLinkedList::display(){
+// Вывод списка на экран
+void DoubleLinkedList::display() {
     DLLNode* current = head;
-    if (current == nullptr){
+    if (current == nullptr) {  // Если список пуст
         cout << "Doubly linked list is empty" << endl;
     } else {
-        while (current != nullptr) {
-            cout << current->data << " ";
+        while (current != nullptr) {  // Проходим по списку
+            cout << current->data << " ";  // Выводим данные узла
             current = current->next;
         }
         cout << endl;
     }
-    
 }
 
-void DoubleLinkedList::loadFromFile(const std::string& filename) { // загрузка данных из файла
-    clear(); // очищаем текущий лист
+// Загрузка данных из файла
+void DoubleLinkedList::loadFromFile(const std::string& filename) {
+    clear();  // Очищаем текущий список
     std::ifstream file(filename);
-    if (!file) {
-        cout << "Cannot open file for reading: " << filename << std::endl;
+    if (!file) {  // Если файл не удалось открыть
+        cout << "Cannot open file for reading: " << filename << endl;
         return;
     }
 
     std::string line;
-    while (getline(file, line)) {
-        addToTheEnd(line); // добавляем элементы
+    while (getline(file, line)) {  // Читаем данные из файла
+        addToTheEnd(line);  // Добавляем элементы в конец списка
     }
     file.close();
 }
 
-void DoubleLinkedList::saveToFile(const std::string& filename) { // сохранение в файл
+// Сохранение данных в файл
+void DoubleLinkedList::saveToFile(const std::string& filename) {
     std::ofstream file(filename);
-    if (!file) {
+    if (!file) {  // Если файл не удалось открыть
         std::cout << "Cannot open file for writing: " << filename << std::endl;
         return;
     }
 
     DLLNode* current = head;
-    while (current) {
-        file << current->data << std::endl; // записываем данные в файл
+    while (current) {  // Проходим по списку
+        file << current->data << std::endl;  // Записываем данные узла в файл
         current = current->next;
     }
     file.close();
